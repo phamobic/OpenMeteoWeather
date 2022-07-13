@@ -10,5 +10,7 @@ data class WeatherDataDto(
     @field:Json(name = "temperature_2m")
     val temperature: List<Double>,
     @field:Json(name = "relativehumidity_2m")
-    val humidity: List<Double>
+    val humidity: List<Double>,
+    @field:Json(name = "weathercode")
+    val code: List<Int>
 )

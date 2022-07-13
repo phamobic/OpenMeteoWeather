@@ -14,5 +14,7 @@ data class WeatherDataEntity(
     @ColumnInfo(name = "temperature_2m")
     val temperature: Double,
     @ColumnInfo(name = "relativehumidity_2m")
-    val humidity: Double
+    val humidity: Double,
+    @ColumnInfo(name = "weathercode")
+    val weatherCode: Int
 )
