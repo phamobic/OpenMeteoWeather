@@ -59,6 +59,7 @@ dependencies {
     // Network
     implementation "com.squareup.retrofit2:retrofit:$retrofit"
     implementation "com.squareup.moshi:moshi:$moshi"
+    implementation "com.squareup.retrofit2:converter-moshi:$moshi_converter"
     implementation "com.squareup.okhttp3:okhttp:$okHttp"
 
     // Google Play Services
