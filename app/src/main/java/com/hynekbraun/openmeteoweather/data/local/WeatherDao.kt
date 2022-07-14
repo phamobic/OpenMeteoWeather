@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.Flow
 interface WeatherDao {
 
     @Insert(onConflict = REPLACE)
-    suspend fun saveWeather(Weather: List<WeatherDataEntity>)
+    suspend fun saveWeather(Weather: WeatherDataEntity)
 
     @Query("SELECT * FROM weather_table")
-    fun getWeather(): Flow<List<WeatherDataEntity>>
+    suspend fun getWeather(): List<WeatherDataEntity>
 }
