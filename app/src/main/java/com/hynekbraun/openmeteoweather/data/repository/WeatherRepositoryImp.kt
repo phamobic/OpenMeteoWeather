@@ -13,6 +13,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
+enum class WeatherError{
+    EMPTY_DB, NETWORK_ERROR
+}
+
 class WeatherRepositoryImp @Inject constructor(
     private val api: WeatherApi,
     private val dao: WeatherDao
@@ -20,7 +24,7 @@ class WeatherRepositoryImp @Inject constructor(
     override suspend fun getWeatherData(
         lat: Double,
         lon: Double
-    ): Resource<WeatherData> {
+    ): Resource<WeatherData, WeatherError> {
         val isDbEmpty = dao.getWeather().isEmpty()
         return try {
             val result = api.getWeatherData(lat = lat, lon = lon)
@@ -30,9 +34,9 @@ class WeatherRepositoryImp @Inject constructor(
             Resource.Success(data = dao.getWeather().toWeatherData())
         } catch (e: Exception) {
             Log.d("TAG", "Repository: Error fetching data")
-            if (isDbEmpty) Resource.Error(e.message ?: "Unknown error")
+            if (isDbEmpty) Resource.Error(WeatherError.EMPTY_DB)
             else Resource.Error(
-                message = "Could not load data from network",
+                error = WeatherError.NETWORK_ERROR,
                 data = dao.getWeather().toWeatherData()
             )
         }
