@@ -1,8 +1,11 @@
 package com.hynekbraun.openmeteoweather.di
 
+import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.hynekbraun.openmeteoweather.data.local.WeatherDao
 import com.hynekbraun.openmeteoweather.data.local.WeatherDatabase
 import com.hynekbraun.openmeteoweather.data.network.WeatherApi
@@ -42,4 +45,11 @@ object AppModule {
     fun provideWeatherDao(weatherDatabase: WeatherDatabase): WeatherDao {
         return weatherDatabase.weatherDao()
     }
+
+    @Provides
+    @Singleton
+    fun provideFusedLocationClient(app: Application): FusedLocationProviderClient {
+        return LocationServices.getFusedLocationProviderClient(app)
+    }
+
 }
