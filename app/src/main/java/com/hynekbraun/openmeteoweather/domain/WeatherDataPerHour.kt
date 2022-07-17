@@ -2,6 +2,7 @@ package com.hynekbraun.openmeteoweather.domain
 
 import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
+import com.hynekbraun.openmeteoweather.domain.util.WeatherType
 import java.time.LocalDateTime
 
 data class WeatherDataPerHour(
@@ -9,5 +10,6 @@ data class WeatherDataPerHour(
     val windSpeed: Double,
     val temperature: Double,
     val humidity: Double,
-    val weatherCode: Int
+    val weatherType: WeatherType,
+    val pressure: Double
 )
