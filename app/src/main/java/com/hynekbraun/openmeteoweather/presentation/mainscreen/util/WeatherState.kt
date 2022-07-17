@@ -11,12 +11,9 @@ enum class ViewModelError{
 
 data class WeatherState(
     val currentData: CurrentData? = null,
-    val forecast: List<WeatherDataPerDay> = emptyList(),
+    val dailyForecastData: List<DailyForecastData> = emptyList(),
+    val hourlyForecastData: List<HourlyForecastData> = emptyList(),
     val error: ViewModelError? = null,
     val isLoading: Boolean = false
 )
 
-data class CurrentData(
-    val currentTime: LocalDateTime,
-    val weatherData: WeatherDataPerHour?
-)

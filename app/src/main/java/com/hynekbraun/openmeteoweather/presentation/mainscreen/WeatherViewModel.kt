@@ -10,6 +10,8 @@ import com.hynekbraun.openmeteoweather.domain.LocationError
 import com.hynekbraun.openmeteoweather.domain.WeatherFetchError
 import com.hynekbraun.openmeteoweather.domain.WeatherRepository
 import com.hynekbraun.openmeteoweather.domain.mapper.toCurrentData
+import com.hynekbraun.openmeteoweather.domain.mapper.toDailyForecastData
+import com.hynekbraun.openmeteoweather.domain.mapper.toHourlyForecastData
 import com.hynekbraun.openmeteoweather.domain.util.Resource
 import com.hynekbraun.openmeteoweather.presentation.mainscreen.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -56,7 +58,19 @@ class WeatherViewModel @Inject constructor(
                                 is Resource.Success -> {
                                     weatherState = weatherState.copy(
                                         currentData = weather.data!!.toCurrentData(),
-                                        forecast = weather.data.weatherData,
+                                        hourlyForecastData = weather.data
+                                            .weatherData[0]
+                                            .hourlyWeather
+                                            .map { hourly ->
+                                                hourly
+                                                    .toHourlyForecastData()
+                                            },
+                                        dailyForecastData = weather.data
+                                            .weatherData
+                                            .map { daily ->
+                                                daily
+                                                    .toDailyForecastData()
+                                            },
                                         isLoading = false,
                                         error = null
                                     )
@@ -65,16 +79,18 @@ class WeatherViewModel @Inject constructor(
                                     when (weather.error) {
                                         WeatherFetchError.EMPTY_DB -> weatherState =
                                             weatherState.copy(
-                                                currentData = null,
-                                                forecast = emptyList(),
                                                 error = ViewModelError.NO_DATA,
+                                                dailyForecastData = emptyList(),
+                                                hourlyForecastData = emptyList(),
+                                                currentData = null,
                                                 isLoading = false
                                             )
                                         WeatherFetchError.NETWORK_ERROR -> {
                                             weatherState = weatherState.copy(
-                                                currentData = null,
-                                                forecast = emptyList(),
                                                 error = ViewModelError.NO_NETWORK,
+                                                dailyForecastData = emptyList(),
+                                                hourlyForecastData = emptyList(),
+                                                currentData = null,
                                                 isLoading = false
                                             )
                                             eventChannel.send(ToastEventHandler.NetworkToastEvent())
@@ -109,8 +125,19 @@ class WeatherViewModel @Inject constructor(
             weatherState = weatherState.copy(isLoading = true, error = null)
             weatherState = weatherState.copy(
                 currentData = weather.toCurrentData(),
-                forecast = weather.weatherData,
-                isLoading = false
+                hourlyForecastData = weather
+                    .weatherData[0]
+                    .hourlyWeather
+                    .map { hourly ->
+                        hourly
+                            .toHourlyForecastData()
+                    },
+                dailyForecastData = weather
+                    .weatherData
+                    .map { daily ->
+                        daily
+                            .toDailyForecastData()
+                    }, isLoading = false
             )
         }
     }
