@@ -9,11 +9,9 @@ import com.hynekbraun.openmeteoweather.domain.CurrentLocationManager
 import com.hynekbraun.openmeteoweather.domain.LocationError
 import com.hynekbraun.openmeteoweather.domain.WeatherFetchError
 import com.hynekbraun.openmeteoweather.domain.WeatherRepository
+import com.hynekbraun.openmeteoweather.domain.mapper.toCurrentData
 import com.hynekbraun.openmeteoweather.domain.util.Resource
-import com.hynekbraun.openmeteoweather.presentation.mainscreen.util.ToastEventHandler
-import com.hynekbraun.openmeteoweather.presentation.mainscreen.util.ViewModelError
-import com.hynekbraun.openmeteoweather.presentation.mainscreen.util.WeatherEvent
-import com.hynekbraun.openmeteoweather.presentation.mainscreen.util.WeatherState
+import com.hynekbraun.openmeteoweather.presentation.mainscreen.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -57,7 +55,8 @@ class WeatherViewModel @Inject constructor(
                             ) {
                                 is Resource.Success -> {
                                     weatherState = weatherState.copy(
-                                        data = weather.data,
+                                        currentData = weather.data!!.toCurrentData(),
+                                        forecast = weather.data.weatherData,
                                         isLoading = false,
                                         error = null
                                     )
@@ -66,13 +65,15 @@ class WeatherViewModel @Inject constructor(
                                     when (weather.error) {
                                         WeatherFetchError.EMPTY_DB -> weatherState =
                                             weatherState.copy(
-                                                data = null,
+                                                currentData = null,
+                                                forecast = emptyList(),
                                                 error = ViewModelError.NO_DATA,
                                                 isLoading = false
                                             )
                                         WeatherFetchError.NETWORK_ERROR -> {
                                             weatherState = weatherState.copy(
-                                                data = weather.data,
+                                                currentData = null,
+                                                forecast = emptyList(),
                                                 error = ViewModelError.NO_NETWORK,
                                                 isLoading = false
                                             )
@@ -104,9 +105,11 @@ class WeatherViewModel @Inject constructor(
 
     private fun observeData() {
         viewModelScope.launch {
+            val weather = repository.observeDatabase()
             weatherState = weatherState.copy(isLoading = true, error = null)
             weatherState = weatherState.copy(
-                data = repository.observeDatabase(),
+                currentData = weather.toCurrentData(),
+                forecast = weather.weatherData,
                 isLoading = false
             )
         }

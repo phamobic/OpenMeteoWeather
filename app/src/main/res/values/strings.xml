@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Open Meteo Weather</string>
+    <string name="contentDesc_weatherIcon">Weather Icon</string>
 </resources>
