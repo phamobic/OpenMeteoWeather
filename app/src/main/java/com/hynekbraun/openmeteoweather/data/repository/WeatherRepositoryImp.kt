@@ -6,12 +6,9 @@ import com.hynekbraun.openmeteoweather.data.mapper.toWeatherData
 import com.hynekbraun.openmeteoweather.data.mapper.toWeatherDataEntityList
 import com.hynekbraun.openmeteoweather.data.network.WeatherApi
 import com.hynekbraun.openmeteoweather.domain.WeatherData
-import com.hynekbraun.openmeteoweather.domain.WeatherDataPerDay
-import com.hynekbraun.openmeteoweather.domain.WeatherError
+import com.hynekbraun.openmeteoweather.domain.WeatherFetchError
 import com.hynekbraun.openmeteoweather.domain.WeatherRepository
 import com.hynekbraun.openmeteoweather.domain.util.Resource
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 
@@ -22,7 +19,7 @@ class WeatherRepositoryImp @Inject constructor(
     override suspend fun getWeatherData(
         lat: Double,
         lon: Double
-    ): Resource<WeatherData, WeatherError> {
+    ): Resource<WeatherData, WeatherFetchError> {
         val isDbEmpty = dao.getWeather().isEmpty()
         return try {
             val result = api.getWeatherData(lat = lat, lon = lon)
@@ -32,11 +29,15 @@ class WeatherRepositoryImp @Inject constructor(
             Resource.Success(data = dao.getWeather().toWeatherData())
         } catch (e: Exception) {
             Log.d("TAG", "Repository: Error fetching data")
-            if (isDbEmpty) Resource.Error(WeatherError.EMPTY_DB)
+            if (isDbEmpty) Resource.Error(WeatherFetchError.EMPTY_DB)
             else Resource.Error(
-                error = WeatherError.NETWORK_ERROR,
+                error = WeatherFetchError.NETWORK_ERROR,
                 data = dao.getWeather().toWeatherData()
             )
         }
+    }
+
+    override suspend fun observeDatabase(): WeatherData {
+        return dao.getWeather().toWeatherData()
     }
 }
