@@ -7,15 +7,13 @@ import com.hynekbraun.openmeteoweather.data.mapper.toWeatherDataEntityList
 import com.hynekbraun.openmeteoweather.data.network.WeatherApi
 import com.hynekbraun.openmeteoweather.domain.WeatherData
 import com.hynekbraun.openmeteoweather.domain.WeatherDataPerDay
+import com.hynekbraun.openmeteoweather.domain.WeatherError
 import com.hynekbraun.openmeteoweather.domain.WeatherRepository
 import com.hynekbraun.openmeteoweather.domain.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-enum class WeatherError{
-    EMPTY_DB, NETWORK_ERROR
-}
 
 class WeatherRepositoryImp @Inject constructor(
     private val api: WeatherApi,
