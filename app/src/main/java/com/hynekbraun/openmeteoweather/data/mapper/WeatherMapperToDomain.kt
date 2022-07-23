@@ -10,21 +10,21 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 fun WeatherDataDto.toWeatherDataEntityList(): List<WeatherDataEntity> {
-    return time.mapIndexed { index, time ->
-        val temperature = temperature[index]
-        val windSpeed = windSpeed[index]
-        val humidity = humidity[index]
-        val code = code[index]
-        val pressure = pressure[index]
-        WeatherDataEntity(
-            temperature = temperature,
-            windSpeed = windSpeed,
-            humidity = humidity,
-            weatherCode = code,
-            time = time,
-            pressure = pressure
+    val result: MutableList<WeatherDataEntity> = mutableListOf()
+
+    for (i in 0 until this.temperature.size){
+        result.add(
+            WeatherDataEntity(
+                time = this.time[i],
+                windSpeed = this.windSpeed[i],
+                humidity = this.humidity[i],
+                pressure = this.pressure[i],
+                temperature = this.temperature[i],
+                weatherCode = this.code[i]
+            )
         )
     }
+    return result.toList()
 }
 
 fun WeatherDataEntity.toWeatherDataPerHour(): WeatherDataPerHour{
@@ -40,7 +40,7 @@ fun WeatherDataEntity.toWeatherDataPerHour(): WeatherDataPerHour{
 
 fun List<WeatherDataEntity>.toWeatherData(): WeatherData {
 
-    val daysChunked = this.chunked(7){ listPerDay ->
+    val daysChunked = this.chunked(21){ listPerDay ->
          WeatherDataPerDay(
            day =  LocalDateTime.parse(listPerDay.first().time, DateTimeFormatter.ISO_DATE_TIME),
             hourlyWeather = listPerDay.map { it.toWeatherDataPerHour() }

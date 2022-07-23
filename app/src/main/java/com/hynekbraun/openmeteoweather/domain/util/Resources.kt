@@ -7,6 +7,6 @@ import android.location.Location
 //    class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)
 //}
 sealed class Resource<S, E>(val data: S? = null, val error: E? = null) {
-    class Success<S, Nothing>(data: S?) : Resource<S, Nothing>(data)
+    class Success<S, Nothing>(data: S) : Resource<S, Nothing>(data)
     class Error<S, E>(error: E, data: S? = null) : Resource<S, E>(error = error, data = data)
 }

@@ -3,7 +3,6 @@ package com.hynekbraun.openmeteoweather.di
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.hynekbraun.openmeteoweather.data.local.WeatherDao
@@ -30,7 +29,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): RoomDatabase{
+    fun provideWeatherDatabase(@ApplicationContext context: Context): WeatherDatabase{
         return Room.databaseBuilder(
             context,
             WeatherDatabase::class.java,

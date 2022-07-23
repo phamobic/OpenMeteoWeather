@@ -3,6 +3,7 @@ package com.hynekbraun.openmeteoweather.presentation.mainscreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +30,7 @@ fun HourlyForecast(
         )
     }
     Column(
-        modifier = modifier,
+        modifier = modifier.height(80.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {

@@ -1,12 +1,10 @@
 package com.hynekbraun.openmeteoweather.di
 
-import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Dispatcher
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -44,6 +42,4 @@ object NetworkModule {
             retryOnConnectionFailure(false)
         }.build()
     }
-
-
 }

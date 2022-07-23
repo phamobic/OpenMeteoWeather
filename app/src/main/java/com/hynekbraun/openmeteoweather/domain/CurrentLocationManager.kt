@@ -8,5 +8,5 @@ enum class LocationError{
 }
 
 interface CurrentLocationManager {
-    suspend fun getLocation(): Resource<Location?, LocationError>
+    suspend fun getLocation(): Resource<Location, LocationError>
 }

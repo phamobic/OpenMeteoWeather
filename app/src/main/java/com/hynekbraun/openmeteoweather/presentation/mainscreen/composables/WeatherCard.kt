@@ -24,9 +24,9 @@ import kotlin.math.roundToInt
 @Composable
 fun WeatherCard(
     modifier: Modifier = Modifier,
-    weatherData: CurrentData
+    weatherData: CurrentData?
 ) {
-    weatherData.weatherData?.let { dataPerHour ->
+    weatherData?.weatherData?.let { dataPerHour ->
         Card(
             modifier = modifier
                 .fillMaxWidth()
@@ -35,7 +35,9 @@ fun WeatherCard(
             shape = RoundedCornerShape(10.dp)
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
