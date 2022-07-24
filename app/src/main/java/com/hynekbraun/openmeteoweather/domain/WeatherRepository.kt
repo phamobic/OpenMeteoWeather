@@ -1,14 +1,13 @@
 package com.hynekbraun.openmeteoweather.domain
 
+import android.location.Location
 import com.hynekbraun.openmeteoweather.domain.util.Resource
 
 enum class WeatherFetchError {
-    EMPTY_DB, NETWORK_ERROR
+    NO_DATA, NETWORK_ERROR
 }
 
 interface WeatherRepository {
 
-    suspend fun getWeatherData(lat: Double, lon: Double): Resource<WeatherData, WeatherFetchError>
-
-    suspend fun observeDatabase(): WeatherData
+    suspend fun getWeatherData(location: Location?): Resource<WeatherData, WeatherFetchError>
 }

@@ -14,7 +14,6 @@ import com.hynekbraun.openmeteoweather.domain.WeatherRepository
 import com.hynekbraun.openmeteoweather.domain.mapper.toCurrentData
 import com.hynekbraun.openmeteoweather.domain.mapper.toCurrentHourlyForecastData
 import com.hynekbraun.openmeteoweather.domain.mapper.toDailyForecastData
-import com.hynekbraun.openmeteoweather.domain.mapper.toHourlyForecastData
 import com.hynekbraun.openmeteoweather.domain.util.Resource
 import com.hynekbraun.openmeteoweather.presentation.mainscreen.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,10 +28,6 @@ class WeatherViewModel @Inject constructor(
     private val currentLocation: CurrentLocationManager
 ) : ViewModel() {
 
-    init {
-        observeData()
-    }
-
     var weatherState by mutableStateOf(WeatherState())
         private set
 
@@ -45,17 +40,14 @@ class WeatherViewModel @Inject constructor(
         }
     }
 
-
     private fun fetchData() {
         Log.d("TAG", "WeatherViewModel: fetch data triggered")
         viewModelScope.launch {
-            weatherState = weatherState.copy(
-                isLoading = true, error = null
-            )
             val currentLocation = currentLocation.getLocation()
             Log.d("TAG", "WeatherViewModel: Location fetched: $currentLocation")
             when (currentLocation) {
                 is Resource.Error -> {
+                    fetchWeather(null)
                     when (currentLocation.error) {
                         LocationError.NO_PERMISSION -> {
                             eventChannel.send(ToastEventHandler.PermissionEvent())
@@ -73,68 +65,42 @@ class WeatherViewModel @Inject constructor(
                 }
                 is Resource.Success -> fetchWeather(currentLocation.data)
             }
-
-        }
-    }
-
-    private fun observeData() {
-        Log.d("TAG", "WeatherViewModel: observe database triggered")
-        viewModelScope.launch {
-            try {
-            val weather = repository.observeDatabase()
-            Log.d("TAG", "WeatherViewModel: observe data current date ${weather.toCurrentData()}")
-            Log.d("TAG", "WeatherViewModel: observe data currentHoulry ${weather.toCurrentHourlyForecastData().size}")
-            weatherState = weatherState.copy(isLoading = true, error = null)
-            weatherState = weatherState.copy(
-                currentData = weather.toCurrentData(),
-                hourlyForecastData = weather.toCurrentHourlyForecastData(),
-                dailyForecastData = weather
-                    .weatherData
-                    .map { daily ->
-                        daily
-                            .toDailyForecastData()
-                    }, isLoading = false
-            )
-                Log.d("TAG", "ViewModel: daily forecast: ${weatherState.dailyForecastData[0]}")
-            } catch (e: Exception){
-                e.printStackTrace()
-
-            }
         }
     }
 
     private fun fetchWeather(location: Location?) {
-        if (location != null) {
-            viewModelScope.launch {
-                repository.getWeatherData(lat = location.latitude, lon = location.longitude)
-                    .let { resource ->
-                        when (resource) {
-                            is Resource.Success -> {
-                                resource.data?.let { weatherData ->
-                                    weatherState = weatherState.copy(
-                                        currentData = weatherData.toCurrentData(),
-                                        hourlyForecastData = weatherData.weatherData[0]
-                                            .hourlyWeather
-                                            .map { hourly ->
-                                                hourly.toHourlyForecastData()
-                                            }
-                                    )
-                                }
+        viewModelScope.launch {
+            repository.getWeatherData(location)
+                .let { resource ->
+                    when (resource) {
+                        is Resource.Success -> {
+                            resource.data?.let { weatherData ->
+                                weatherState = weatherState.copy(
+                                    currentData = weatherData.toCurrentData(),
+                                    hourlyForecastData = weatherData.toCurrentHourlyForecastData(),
+                                    dailyForecastData = weatherData
+                                        .weatherData
+                                        .map { daily ->
+                                            daily
+                                                .toDailyForecastData()
+                                        }, isLoading = false
+                                )
                             }
-                            is Resource.Error -> {
-                                when (resource.error) {
-                                    WeatherFetchError.EMPTY_DB -> eventChannel.send(
-                                        ToastEventHandler.GenericToastEvent()
-                                    )
-                                    WeatherFetchError.NETWORK_ERROR -> eventChannel.send(
-                                        ToastEventHandler.NetworkToastEvent()
-                                    )
-                                    null -> eventChannel.send(ToastEventHandler.GenericToastEvent())
-                                }
+                        }
+                        is Resource.Error -> {
+                            weatherState = weatherState.copy(isLoading = false)
+                            when (resource.error) {
+                                WeatherFetchError.NO_DATA -> eventChannel.send(
+                                    ToastEventHandler.GenericToastEvent()
+                                )
+                                WeatherFetchError.NETWORK_ERROR -> eventChannel.send(
+                                    ToastEventHandler.NetworkToastEvent()
+                                )
+                                null -> eventChannel.send(ToastEventHandler.GenericToastEvent())
                             }
                         }
                     }
-            }
+                }
         }
     }
 }

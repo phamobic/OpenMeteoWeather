@@ -1,5 +1,6 @@
 package com.hynekbraun.openmeteoweather.data.repository
 
+import android.location.Location
 import android.util.Log
 import com.hynekbraun.openmeteoweather.data.local.WeatherDao
 import com.hynekbraun.openmeteoweather.data.mapper.toWeatherData
@@ -17,37 +18,38 @@ class WeatherRepositoryImp @Inject constructor(
     private val dao: WeatherDao
 ) : WeatherRepository {
     override suspend fun getWeatherData(
-        lat: Double,
-        lon: Double
+        location: Location?
     ): Resource<WeatherData, WeatherFetchError> {
         Log.d("TAG", "Repository: Fetch data triggered")
         val isDbEmpty = dao.getWeather().isEmpty()
-        return try {
-            val result = api.getWeatherData(lat = lat, lon = lon)
-            Log.d("TAG", "Repository mapped data: ${result.weatherData.toWeatherDataEntityList()}")
-            Log.d(
-                "TAG",
-                "Repository: Fetched data: ${result.weatherData.time.size}")
-            dao.deleteWeather()
-            result.weatherData.toWeatherDataEntityList().forEach {
-                dao.saveWeather(it)
+        if (location != null) {
+            return try {
+                val result = api.getWeatherData(lat = location.latitude, lon = location.longitude)
+                Log.d(
+                    "TAG",
+                    "Repository: Fetched data: ${result.weatherData.time.size}"
+                )
+                dao.deleteWeather()
+                result.weatherData.toWeatherDataEntityList().forEach {
+                    dao.saveWeather(it)
+                }
+                Log.d("TAG", "Repository: Data loaded successfully")
+                Resource.Success(data = dao.getWeather().toWeatherData())
+            } catch (e: Exception) {
+                Log.d("TAG", "Repository: Error fetching data ${e.message}")
+                e.printStackTrace()
+                if (isDbEmpty) Resource.Error(WeatherFetchError.NO_DATA)
+                else Resource.Error(
+                    error = WeatherFetchError.NETWORK_ERROR,
+                    data = dao.getWeather().toWeatherData()
+                )
             }
-            Log.d("TAG", "Repository: Data loaded successfully")
-            Resource.Success(data = dao.getWeather().toWeatherData())
-        } catch (e: Exception) {
-            Log.d("TAG", "Repository: Error fetching data ${e.message}")
-            e.printStackTrace()
-            if (isDbEmpty) Resource.Error(WeatherFetchError.EMPTY_DB)
-            else Resource.Error(
-                error = WeatherFetchError.NETWORK_ERROR,
+        } else if (!isDbEmpty) {
+            return Resource.Success(
                 data = dao.getWeather().toWeatherData()
             )
+        } else {
+            return Resource.Error(WeatherFetchError.NO_DATA)
         }
-    }
-
-    override suspend fun observeDatabase(): WeatherData {
-        Log.d("TAG", "Repository: Observe database triggered")
-        Log.d("TAG", "Repository: Observe database: ${dao.getWeather()}")
-        return dao.getWeather().toWeatherData()
     }
 }

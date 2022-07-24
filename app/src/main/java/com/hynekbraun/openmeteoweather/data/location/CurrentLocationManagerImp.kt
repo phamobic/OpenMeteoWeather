@@ -31,8 +31,7 @@ class CurrentLocationManagerImp
         val locationManager =
             application.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
         val isGpsEnabled =
-            locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER) ||
-                    locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
+            locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
 
         if (!hasAccessFineLocationPermission || !hasAccessCoarseLocationPermission) {
             Log.d("TAG", "LocationManager: Location failed: no permissions")
@@ -47,7 +46,10 @@ class CurrentLocationManagerImp
             locationClient.lastLocation.apply {
                 if (isComplete) {
                     if (isSuccessful) {
-                        Log.d("TAG", "LocationManager: Location retrieved: lat: ${result.latitude} lon: ${result.longitude}")
+                        Log.d(
+                            "TAG",
+                            "LocationManager: Location retrieved: lat: ${result.latitude} lon: ${result.longitude}"
+                        )
                         cont.resume(Resource.Success(data = result))
                     } else {
                         Log.d("TAG", "LocationManager: Location failed: generic error")
@@ -56,8 +58,12 @@ class CurrentLocationManagerImp
                     return@suspendCancellableCoroutine
                 }
                 addOnSuccessListener {
-                    Log.d("TAG", "LocationManager: Location retrieved: lat: ${result.latitude} lon: ${result.longitude}")
-                    cont.resume(Resource.Success(data = result))
+                    Log.d("TAG", "LocationManager: Location retrieved: $result")
+                    if (result != null) {
+                        cont.resume(Resource.Success(data = result))
+                    } else {
+                        cont.resume(Resource.Error(error = LocationError.GENERIC_ERROR))
+                    }
                 }
                 addOnFailureListener {
                     Log.d("TAG", "LocationManager: Location failed: generic error")

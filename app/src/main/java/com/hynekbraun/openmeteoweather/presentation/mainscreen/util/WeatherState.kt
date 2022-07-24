@@ -14,6 +14,6 @@ data class WeatherState(
     val dailyForecastData: List<DailyForecastData> = emptyList(),
     val hourlyForecastData: List<HourlyForecastData> = emptyList(),
     val error: ViewModelError? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = true
 )
 
