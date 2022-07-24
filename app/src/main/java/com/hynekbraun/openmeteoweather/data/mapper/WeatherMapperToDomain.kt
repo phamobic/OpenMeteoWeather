@@ -40,7 +40,7 @@ fun WeatherDataEntity.toWeatherDataPerHour(): WeatherDataPerHour{
 
 fun List<WeatherDataEntity>.toWeatherData(): WeatherData {
 
-    val daysChunked = this.chunked(21){ listPerDay ->
+    val daysChunked = this.chunked(24){ listPerDay ->
          WeatherDataPerDay(
            day =  LocalDateTime.parse(listPerDay.first().time, DateTimeFormatter.ISO_DATE_TIME),
             hourlyWeather = listPerDay.map { it.toWeatherDataPerHour() }

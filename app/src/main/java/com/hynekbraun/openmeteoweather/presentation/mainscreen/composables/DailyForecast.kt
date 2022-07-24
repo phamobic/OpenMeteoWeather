@@ -28,7 +28,7 @@ fun DailyForecast(
 ) {
     val formattedTime = remember(weatherData) {
         weatherData.time.format(
-            DateTimeFormatter.ofPattern("EEE MMM d")
+            DateTimeFormatter.ofPattern("EEE dd.MM.")
         )
     }
     Column(
