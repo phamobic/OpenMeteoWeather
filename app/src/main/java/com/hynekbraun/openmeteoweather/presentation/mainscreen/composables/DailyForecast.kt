@@ -32,7 +32,7 @@ fun DailyForecast(
         )
     }
     Column(
-        modifier = modifier.height(80.dp),
+        modifier = modifier.height(100.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {

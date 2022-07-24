@@ -11,7 +11,6 @@ import java.time.LocalDateTime
 fun WeatherData.toCurrentData(): CurrentData {
     val currentTime = LocalDateTime.now()
     return CurrentData(
-        currentTime = currentTime,
         weatherData = this.weatherData[0].hourlyWeather.find {
             it.time.hour == currentTime.hour
         },

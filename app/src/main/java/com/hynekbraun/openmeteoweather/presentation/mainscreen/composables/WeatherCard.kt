@@ -41,7 +41,8 @@ fun WeatherCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = weatherData.currentTime.format(DateTimeFormatter.ofPattern("EEE, MMM d, HH:mm")),
+                    text = weatherData.weatherData.time
+                        .format(DateTimeFormatter.ofPattern("EEE, MMM d, HH:mm")),
                     modifier = Modifier.align(Alignment.End),
                     color = Color.White
                 )
